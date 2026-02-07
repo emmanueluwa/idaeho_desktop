@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:idaeho_desktop/screens/sync_screen.dart';
 
 void main() {
   runApp(const IdaehoDesktopApp());

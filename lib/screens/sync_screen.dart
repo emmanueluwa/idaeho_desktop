@@ -91,10 +91,86 @@ class _SyncScreenState extends State<SyncScreen> {
       isSyncing = true;
       syncProgress = 0.0;
     });
+
+    await _adb.createAppDirectory(selectedDevice!);
+
+    for (var i = 0; i < filesToSync.length; i++) {
+      final file = filesToSync[i];
+      final filename = file.path.split(Platform.pathSeparator).last;
+
+      await _adb.pushFile(
+        selectedDevice!,
+        file.path,
+        "/sdcard/Idaeho/$filename",
+      );
+
+      setState(() {
+        syncProgress = (1 + 1) / filesToSync.length;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Synced ${filesToSync.length} files")),
+      );
+
+      await _loadStorageInfo();
+    }
+  }
+
+  String _formatBytes(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
+    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
+      body: Column(
+        children: [
+          // header
+          Container(
+            padding: EdgeInsets.all(24),
+            color: Colors.white,
+            child: Row(
+              children: [
+                Icon(Icons.music_note, size: 13),
+                SizedBox(width: 12),
+                Text(
+                  "Idaeho Library",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                Spacer(),
+                if (connectedDevices.isEmpty)
+                  Row(
+                    children: [
+                      Icon(Icons.phone_android, color: Colors.green),
+                      SizedBox(width: 8),
+                      Text("Connected", style: TextStyle(color: Colors.green)),
+                    ],
+                  )
+                else
+                  Row(
+                    children: [
+                      Icon(Icons.phone_android, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text("No device", style: TextStyle(color: Colors.red)),
+                      SizedBox(width: 12),
+                      TextButton.icon(
+                        onPressed: _refreshDevices,
+                        icon: Icon(Icons.refresh),
+                        label: Text("Refresh"),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
