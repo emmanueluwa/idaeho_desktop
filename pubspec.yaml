@@ -40,6 +40,9 @@ dependencies:
   path_provider: ^2.1.4
   path: ^1.9.0
 
+  # drag and drop
+  desktop_drop: ^0.4.4
+
   # ADB/USB communication
   process_run: ^1.2.0
 
